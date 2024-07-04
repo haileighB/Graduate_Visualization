@@ -1,10 +1,10 @@
-# Graduate_Visualization
+# Canadian Post-Secondary Graduate Visualization
 
 A D3.js project visualizing Canadian Postsecondary graduates, created using the dataset [Postsecondary graduates, by field of study, program type, credential type, and gender](https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3710001201) from Statistics Canada.
 
 The project can be viewed in action [here.](https://web.cs.dal.ca/~hbarss/GraduateVisualization/4166project.html)
 
-My goal with this project was to create data visualizations that would give a user insight into the popularity of different fields of study, the university and college student population in each province, the gender balance in post-secondary education, and how these things have changed over two decades. 
+My goal with this project was to create data visualizations that would give a user insight into the popularity of different fields of study in Canada, the university and college student population in each province, the gender balance in post-secondary education, and how these things have changed over two decades. 
 Namely, I hoped the system could be used to answer the following questions:
 - What are the most popular fields of study in different provinces and the territories? Least popular?
 - What are the most popular fields of study in Canada as a whole? Least popular?
