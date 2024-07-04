@@ -1,0 +1,1185 @@
+<!-- CSCI 4166 Final Project
+Haileigh Barss - B00837609 -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>CSCI4166 Final Project</title>
+        <script src="https://d3js.org/d3.v4.js"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Libre Baskerville' rel='stylesheet'>
+        <link href="https://fonts.cdnfonts.com/css/tt-norms-pro" rel="stylesheet">
+        <style type="text/css">
+            body {
+                font-family: 'TT Norms Pro', sans-serif;
+                background-color: #24253f;
+                color: white;
+            }
+            a{
+                color: white; 
+            }
+            a:hover{
+                color: #fa3c75;
+            }
+            h1{
+                letter-spacing: 2px;
+                font-weight: 300;
+                padding-top: 10px;
+            }
+            h2{
+                font-weight: lighter;
+                text-transform: uppercase;
+            }
+            h3{
+                font-weight: normal;
+                margin-bottom: 10px;
+                padding-left: 10px;
+            }
+            h4{
+                font-weight: lighter;
+                margin-top: 5px;
+                padding-left: 10px;
+                margin-bottom: 5px;
+            }
+            #header{
+                margin: auto;
+                text-align: center;
+            }
+            #container{
+                margin: auto;
+                text-align: center;
+                width: 800px;
+            }
+            .figure{
+                text-align: left;
+                margin-top: 40px;
+                padding-bottom: 40px;
+            }
+            .node:hover{
+                stroke-width: 2px !important;
+                opacity: 1 !important;
+                fill-opacity: 1 !important;
+            }
+            .leaf:hover{
+                stroke-width: 2px !important;
+                opacity: 1 !important;
+                fill-opacity: 1 !important;
+            }
+            /* .leaf-text{
+                opacity: 0;
+            } */
+            .leaf-text:hover{
+                opacity: 1 !important;
+            }
+            .axis-grid line{
+                stroke: #434472 !important;
+            }
+            .tooltip{
+                margin:0px;
+                padding:0px;
+            }
+            footer{
+                margin-top: 30px;
+                padding: 20px 20px 0px 20px;
+                font-weight: lighter;
+                display: flex;
+                justify-content: space-between;
+                background-color: #fa3c75;
+                border-top: 2px #434472 solid;
+            }
+            footer>a{
+                font-weight: normal;
+            }
+            footer>a:hover{
+                font-weight: normal;
+                color: #2b2b2b;
+            }
+            #index{
+                text-align: left;
+                margin-top: 30px;
+            }
+            header{
+                padding: 5px 0px;
+                width: 100%;
+                background-color: #fa3c75;
+                border-bottom: 2px #434472 solid;
+            }
+            body{
+                margin: -20px 0px;
+                padding: 0px;
+            }
+            .bar{
+                opacity: 100%;
+            }
+            .bar:hover{
+                opacity: 75%;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div id="header">
+            <h1>Visualizing Canadian Postsecondary Graduates</h1>
+            </div>
+            </header>
+        <div id = container>
+            <div id="index"> 
+                <h2 id="index-header">Index</h2>
+                <a class="index-link" href="#fig4">1: Plotting number of graduates per field</a><br><br>
+                <a class="index-link" href="#fig5">2: Plotting gender of graduates</a><br><br>
+                <a class="index-link" href="#fig6">3: Plotting number of male vs. female vs. unknown graduates in each field</a><br><br>
+                <a class="index-link" href="#fig7">4: Plotting the growth in number of graduates from 1992 to 2021</a><br><br>
+                <a class="index-link" href="#fig1" hidden>5: Mapping field with the highest number of graduates</a>
+                <a class="index-link" href="#fig2" hidden>6: Mapping total number of graduates</a>
+                <a class="index-link" href="#fig3" hidden>7: Mapping number of graduates per field</a>
+            </div>
+            <div id="chart4div" class="figure">
+                <h2 class="figure-header" id="fig4">Number of graduates in each field</h2>
+                <select id="selectYear4"></select>
+                <select id="selectRegion4"></select>
+            </div>
+            <div id="chart5div" class="figure">
+                <h2 class="figure-header" id="fig5">Popularity of fields by gender</h2>
+                <select id="selectYear5"></select>
+                <select id="selectRegion5"></select>
+            </div>
+            <div id="chart6div" class="figure">
+                <h2 class="figure-header" id="fig6">Number of male vs. female vs. unknown graduates</h2>
+                <select id="selectYear6"></select>
+                <select id="selectRegion6"></select>
+            <!-- <svg id="chart6svg" width="1000" height="800"></svg> -->
+            </div>
+            <div id="chart7div" class="figure">
+                <h2 class="figure-header" id="fig7">Growth rate of number of graduates</h2>
+                <select id="selectField7"></select>
+                <select id="selectRegion7"></select>
+            <!-- <svg id="chart7svg" width="1000" height="600"></svg> -->
+            </div>
+            <div id="map1div" class="figure" hidden>
+                <h2 class="figure-header" id="fig1">Field with the highest number of graduates</h2>
+            <svg id="map1svg" width="650" height="600"></svg>
+            </div>
+            <div id="map2div" class="figure" hidden>
+                <h2 class="figure-header" id="fig2">Total number of graduates</h2>
+                <select id="selectEducation2"></select>
+            <svg id="map2svg" width="650" height="600"></svg>
+            </div>
+            <div id="map3div" class="figure" hidden>
+                <h2 class="figure-header" id="fig3">Number of graduates per field</h2>
+                <select id="selectField3"></select>
+            <svg id="map3svg" width="650" height="600"></svg>
+            </div>
+            <!------------------------------------------------------------------------------------------------------------------->
+            <script type="text/javascript" async>
+                var viewportWidth = window.innerWidth;
+                var viewportHeight = window.innerHeight;
+
+                const YEARS = [2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006, 2005, 2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997, 1996, 1995, 1994, 1993, 1992]
+                const REGIONS = ["Canada", "Territories", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec", "New Brunswick", "Prince Edward Island", "Nova Scotia", "Newfoundland and Labrador"]
+                const FIELDS = ["Total, field of study", "Personal improvement and leisure [0]", "Education [1]", "Visual and performing arts, and communications technologies [2]", "Humanities [3]", "Social and behavioural sciences and law [4]",
+                                    "Business, management and public administration [5]", "Physical and life sciences and technologies [6]", "Mathematics, computer and information sciences [7]",
+                                    "Architecture, engineering and related technologies [8]", "Agriculture, natural resources and conservation [9]", "Health and related fields [10]", "Personal, protective and transportation services [11]",
+                                    "Other  [12]", "Unclassified"];
+                const FIELDS2 = ["Personal improvement and leisure [0]", "Education [1]", "Visual and performing arts, and communications technologies [2]", "Humanities [3]", "Social and behavioural sciences and law [4]",
+                "Business, management and public administration [5]", "Physical and life sciences and technologies [6]", "Mathematics, computer and information sciences [7]",
+                "Architecture, engineering and related technologies [8]", "Agriculture, natural resources and conservation [9]", "Health and related fields [10]", "Personal, protective and transportation services [11]",
+                "Other  [12]", "Unclassified"];
+                //colour palette adapted from https://www.heavy.ai/blog/12-color-palettes-for-telling-better-stories-with-your-data
+                const COLOURS = ["#fa3c75", "#5AD45A", "#ebdc78", "#d6613a", "#b30000", "#7C1158", "#d48e2c", "#1a53ff", "#8be04e", "#f2c327", "#00b7c7", "#4421af", "#0d88e6", "#8b35b0", "#b7128a"];
+
+                var mapW = 650;
+                var mapH = 600;
+
+                //categorical colour palette
+                const fieldColourRange = {"Personal improvement and leisure [0]":"#5AD45A", "Education [1]":"#ebdc78", "Visual and performing arts, and communications technologies [2]":"#d6613a", "Humanities [3]":"#b30000", "Social and behavioural sciences and law [4]":"#7C1158", "Business, management and public administration [5]":"#d48e2c", "Physical and life sciences and technologies [6]":"#1a53ff", "Mathematics, computer and information sciences [7]":"#8be04e", "Architecture, engineering and related technologies [8]":"#f2c327", "Agriculture, natural resources and conservation [9]":"#00b7c7", "Health and related fields [10]":"#4421af", "Personal, protective and transportation services [11]":"#0d88e6", "Other  [12]":"#8b35b0", "Unclassified":"#b7128a"};
+
+                //fields of study
+                const fieldDomain = ["Personal improvement and leisure", "Education", "Visual and performing arts, and communications technologies", "Humanities", "Social and behavioural sciences and law",
+                                    "Business, management and public administration", "Physical and life sciences and technologies", "Mathematics, computer and information sciences",
+                                    "Architecture, engineering, and related technologies", "Agriculture, natural resources and conservation", "Health and related fields", "Personal, protective and transportation services",
+                                    "Other", "Unclassified"]
+
+                /* Map 1 (categorical colour) ------------------------------------------------------------- */
+                var map1 = d3.select("#map1svg"),
+                    width = +map1.attr("width"),
+                    height = +map1.attr("height");
+
+                //background map: referenced https://d3-graph-gallery.com/graph/backgroundmap_basic.html
+                //set the projection so that Canada map looks right
+                var projection = d3.geoConicConformal()
+                    .center([-120, 54])
+                    .rotate([100,0])
+                    .scale(600)
+                    .translate([-400, 75])
+
+                //load geojson data (from https://data.opendatasoft.com/explore/dataset/georef-canada-province%40public/export/?disjunctive.prov_name_en)
+                d3.queue()
+                    .defer(d3.json, "./canadamap.geojson")
+                    .defer(d3.csv, "map1/2021_data_map1.csv")
+                    .await(mapping1)
+
+                // var files = ["./canadamap.geojson", "map1/2021_data_map1.csv"]
+
+                // const promises = [];
+                // files.forEach(function(url, index) {
+                //     promises.push(index ? d3.csv(url, row) : d3.json(url))
+                // });
+
+                // Promise.all(promises).then(function(data) {
+                //     //console.log(data); //check if all data was loaded
+                //     //any code that depends on 'data' goes here
+                //     mapping1();
+                // });
+                
+                //function to draw and fill map
+                function mapping1(error, data, stats){
+                console.log(data)
+                console.log(stats)
+
+                var features = data.features;
+
+                var map1Colour = d3.scaleOrdinal()
+                    .domain(fieldDomain)
+                    .range(fieldColourRange)
+
+                //draw the map using geojson data
+                map1.append("g")
+                    .selectAll("path")
+                    .data(features)
+                    .enter().append("path")
+                        .attr("fill", "none" /*function(d) { return map1Colour(d.properties["Field of study"]) }*/)
+                        .attr("opacity", .2)
+                        .attr("d", d3.geoPath()
+                            .projection(projection)
+                        )
+                        .style("stroke", "#fff")
+                        .style("stroke-width", 2)
+
+                map1.selectAll(".province")
+                    .data(stats)
+                    .enter().append()
+                }
+
+                /* Map 2 (choropleth???) (total # grads) ------------------------------------------------------------- */
+                var map2 = d3.select("#map2svg"),
+                    width = +map2.attr("width"),
+                    height = +map2.attr("height");
+                
+                // add the options to the dropdowns
+                d3.select("#selectEducation2")
+                .selectAll('myOptions')
+                    .data(["Total, institution type","University", "College"])
+                .enter()
+                    .append('option')
+                .text(function (d) { return d; }) 
+                .attr("value", function (d) { return d; }) 
+
+                d3.select("#selectEducation2").on("change", function(d) {
+                    
+                    var selectedOption = d3.select(this).property("value")
+                    
+                    update4(selectedOption, education2)
+                })
+
+                // Set the projection so that Canada map looks right
+                var projection = d3.geoConicConformal()
+                    .center([-120, 54])
+                    .rotate([100,0])
+                    .scale(600)
+                    .translate([-400, 75])
+
+                d3.json("./canadamap.geojson", function(data){
+                var features = data.features;
+
+                // Draw the map using geojson data
+                map2.append("g")
+                    .selectAll("path")
+                    .data(features)
+                    .enter().append("path")
+                        .attr("fill", "none")
+                        .attr("opacity", .2)
+                        .attr("d", d3.geoPath()
+                            .projection(projection)
+                        )
+                        .style("stroke", "#fff")
+                        .style("stroke-width", 2)
+                })
+
+                /* Map 3 (choropleth) ------------------------------------------------------------- */
+                var map3 = d3.select("#map3svg"),
+                    width = +map3.attr("width"),
+                    height = +map3.attr("height");
+
+                var path = d3.geoPath();
+
+                //set the projection so that Canada map looks right
+                var projection = d3.geoConicConformal()
+                    .center([-120, 54])
+                    .rotate([100,0])
+                    .scale(600)
+                    .translate([-400, 75]);
+
+                // Data and color scale
+                var data = d3.map();
+                var colorScale = d3.scaleThreshold()
+                    .domain([10000, 200000, 300000, 400000, 500000, 900000])
+                    .range(d3.schemeBlues[7]);
+
+
+                /* Map 3 ----------------------------------------------------------------- */
+                var map3 = d3.select("#map3svg"),
+                    width = +map3.attr("width"),
+                    height = +map3.attr("height");
+
+                // add the options to the dropdowns
+                d3.select("#selectField3")
+                .selectAll('myOptions')
+                    .data(FIELDS)
+                .enter()
+                    .append('option')
+                .text(function (d) { return d; }) 
+                .attr("value", function (d) { return d; }) 
+
+                d3.select("#selectField3").on("change", function(d) {
+                
+                var selectedOption = d3.select(this).property("value")
+                
+                update4(selectedOption, field3)
+                })
+
+                //set the projection so that Canada map looks right
+                var projection = d3.geoConicConformal()
+                    .center([-120, 54])
+                    .rotate([100,0])
+                    .scale(600)
+                    .translate([-400, 75]);
+
+                var provinces = new Map();
+                // d3.csv("map3/2021_data_total.csv").then((data) => {
+                //     data.forEach(d => {provinces.set(d.name, +d.value)})
+                //     d3.json("./canadamap.geojson").then(mapping3)
+                // })
+
+                d3.queue()
+                    .defer(d3.json, "./canadamap.geojson")
+                    .defer(d3.csv, "map3/2021_data_total.csv", function(d){provinces.set(d.GEO, +d.VALUE)})
+                    .await(mapping3)
+                
+                console.log(provinces)
+
+                function mapping3(error, data, stats){
+                //define choropleth colour scheme
+                var map3Colour = d3.scaleThreshold()
+                    .domain(d3.range(500,300000))
+                    //.range(d3.schemeOranges[9])
+                    .range(["#e27c34", "#f08a4b", "#f3a236", "#f9b848", "#f9ce86", "#fce9c7", "#fbf5e0"])
+
+                //const color = d3.scaleSequential([8, 0], d3.interpolateMagma);
+
+                console.log(data)
+                console.log(stats)
+                //d3.json("./canadamap.geojson", function(data){
+                var features = data.features
+
+                //draw the map using geojson data
+                map3.append("g")
+                    .attr("class","provinces")
+                    .selectAll("path")
+                    .data(features)
+                    .enter().append("path")
+                        .attr("fill", function(d){return map3Colour(d.value = provinces.get(d.GEO))})
+                        .attr("opacity", .2)
+                        .attr("d", d3.geoPath()
+                            .projection(projection)
+                        )
+                        .style("stroke", "#fff")
+                        .style("stroke-width", 2)
+                //})
+                }
+            
+            
+            /* Chart 4 (treemap) ------------------------------------------------------------- */
+            var c4W = 600;
+            var c4H = 600;
+
+            var margin4 = {top: 10, right: 10, bottom: 10, left: 10},
+            c4W = c4W - margin4.left - margin4.right,
+            c4H = c4H - margin4.top - margin4.bottom;
+
+            // dropdowns: referenced https://d3-graph-gallery.com/graph/line_select.html
+            // add the options to the dropdowns
+            d3.select("#selectYear4")
+            .selectAll('myOptions')
+                .data(YEARS)
+            .enter()
+                .append('option')
+            .text(function (d) { return d; })
+            .attr("value", function (d) { return d; })
+
+            d3.select("#selectRegion4")
+            .selectAll('myOptions')
+                .data(REGIONS)
+            .enter()
+                .append('option')
+            .text(function (d) { return d; })
+            .attr("value", function (d) { return d; })
+
+            var year4 = 2021;
+            var region4 = "Canada";
+
+            draw4(c4W, c4H, year4, region4);
+
+            //update chart for year and region selected in dropdown
+            function update4(selectedYear, selectedRegion){
+                year4 = selectedYear;
+                region4 = selectedRegion;
+                console.log(year4);
+                console.log(region4);
+
+                d3.select("#chart4div").selectAll("svg").remove();
+                d3.select("#chart4div").selectAll("h3").remove();
+                d3.select("#chart4div").selectAll("h4").remove();
+                d3.selectAll(".leaf-label").remove();
+                d3.select("#chart4svg").attr("transform", "translate(-100, 0)");
+                d3.select("#chart4svg>g").attr("transform", "translate("+ 100 +", 0)")
+
+                draw4(c4W, c4H, year4, region4);
+            }
+
+            // run update function when a selection is made
+            d3.select("#selectYear4").on("change", function(d) {
+                
+                var selectedOption = d3.select(this).property("value")
+                
+                update4(selectedOption, region4)
+            })
+
+            d3.select("#selectRegion4").on("change", function(d) {
+                
+                var selectedOption = d3.select(this).property("value")
+                
+                update4(year4, selectedOption)
+            })
+
+            //draw the chart
+            function draw4(c4W, c4H, year4, region4){
+                d3.select("#chart4div").append("div")
+                    .html("<h3>Graduates in " + region4 + " in " + year4 + "</h3>")
+
+                var chart4 = d3.select("#chart4div").append("svg")
+                .attr("width", c4W + margin4.left + margin4.right)
+                .attr("height", c4H + margin4.top + margin4.bottom)
+                .append("g")
+                .attr("transform",
+                "translate(" + margin4.left + "," + margin4.top + ")");
+
+                var data4 = new Map()
+                d3.csv("chart4/data_allyears.csv", function(csv){
+                    data4 = csv.filter(function(row){
+                        return row["REF_DATE"] == year4 && row["GEO"] == region4 && row["Field of study"] != "Total, field of study"
+                    })
+
+                    //getting data into workable structure
+                    var data4G = data4.map(item => ({field: item["Field of study"], parent: "Origin", value: item.VALUE}))
+                    data4G.push({field:"Origin", parent:"", value:""});
+                    data4G["columns"] = ["field", "parent", "value"];
+                    console.log(data4G);
+
+                    // treemap: referenced https://d3-graph-gallery.com/graph/treemap_basic.html
+                    // stratify the data: reformatting for d3.js
+                    var root = d3.stratify()
+                        .id(function(d) { return d.field; })   // Name of the entity (column name is name in csv)
+                        .parentId(function(d) { return d.parent; })   // Name of the parent (column name is parent in csv)
+                        (data4G);
+                    root.sum(function(d) { return +d.value })   // Compute the numeric value for each entity
+
+                    // Then d3.treemap computes the position of each element of the hierarchy
+                    // The coordinates are added to the root object above
+                    d3.treemap()
+                        .size([c4W, c4H])
+                        .padding(4)
+                        (root)
+
+                    console.log(root.leaves())
+
+                    //labels: referenced https://d3-graph-gallery.com/graph/circularpacking_template.html
+                    var label = d3.select("#chart4div")
+                        .append("div")
+                        .style("opacity", 0)
+                        .attr("class", "leaf-label")
+
+                    //functions for labels
+                    var mouseover = function(d){
+                        label.style("opacity",1)
+                    }
+                    var mousemove = function(d){
+                        label.html("<b>" + d.data.field + "</b><br>" + d3.format(",")(d.data.value) + " graduates")
+                            .style("left", (d3.mouse(this)[0]+20) + "px")
+                            .style("top", (d3.mouse(this)[1]) + "px")
+                            .attr("font-size", "15px")
+                            .attr("fill", "white")
+                    }
+                    var mouseleave = function(d){
+                        label.style("opacity", 0)
+                    }
+
+                    // use this information to add rectangles:
+                    chart4
+                        .selectAll("rect")
+                        .data(root.leaves())
+                        .enter()
+                        .append("rect")
+                        .attr("class", "leaf")
+                        .attr('x', function (d) { return d.x0; })
+                        .attr('y', function (d) { return d.y0; })
+                        .attr('width', function (d) { return d.x1 - d.x0; })
+                        .attr('height', function (d) { return d.y1 - d.y0; })
+                        .style("stroke", "white")
+                        .style("fill", function(d){return fieldColourRange[d.data.field]})
+                        .style("fill-opacity", 0.75)
+                        .on("mouseover", mouseover) // What to do when hovered
+                        .on("mousemove", mousemove)
+                        .on("mouseleave", mouseleave)
+                    
+                    // //and to add the text labels
+                    // chart4
+                    //     .selectAll("text")
+                    //     .data(root.leaves())
+                    //     .enter()
+                    //     .append("text")
+                    //     //.attr("class", "leaf-text")
+                    //     .attr("x", function(d){ return d.x0+10})    // +10 to adjust position (more right)
+                    //     .attr("y", function(d){ return d.y0+20})    // +20 to adjust position (lower)
+                    //     .text(function(d){ return d.data.field})
+                    //     .attr("font-size", "15px")
+                    //     .attr("fill", "white")
+
+                })
+            }
+
+            /* Chart 5 (circle packing) ------------------------------------------------------------- */
+            var c5W = 900;
+            var c5H = 600;
+
+            // set the dimensions and margins of the graph
+            var margin5 = {top: 30, right: 30, bottom: 0, left: 30},
+                c5W = c5W - margin5.left - margin5.right,
+                c5H = c5H - margin5.top - margin5.bottom;
+
+            // dropdowns: referenced https://d3-graph-gallery.com/graph/line_select.html
+            // add the options to the dropdowns
+            d3.select("#selectYear5")
+            .selectAll('myOptions')
+                .data(YEARS)
+            .enter()
+                .append('option')
+            .text(function (d) { return d; }) 
+            .attr("value", function (d) { return d; }) 
+
+            d3.select("#selectRegion5")
+            .selectAll('myOptions')
+                .data(REGIONS)
+            .enter()
+                .append('option')
+            .text(function (d) { return d; }) 
+            .attr("value", function (d) { return d; }) 
+
+            //default values
+            var year5 = 2021;
+            var region5 = "Canada";
+
+            draw5(c5W, c5H, year5, region5);
+
+            //update chart for year and region selected in dropdown
+            function update5(selectedYear, selectedRegion){
+                year5 = selectedYear;
+                region5 = selectedRegion;
+                console.log(year5);
+                console.log(region5);
+
+                d3.select("#chart5div").selectAll("svg").remove();
+                d3.select("#chart5div").selectAll("h3").remove();
+                d3.select("#chart5div").selectAll("h4").remove();
+                d3.selectAll(".tooltip").remove();
+                d3.select("#chart5svg").attr("transform", "translate(-100, 0)");
+                d3.select("#chart5svg>g").attr("transform", "translate("+ 100 +", 0)")
+
+                draw5(c5W, c5H, year5, region5);
+            }
+
+            // run update functions when a selection is made
+            d3.select("#selectYear5").on("change", function(d) {
+                var selectedOption = d3.select(this).property("value")
+                update5(selectedOption, region5)
+            })
+
+            d3.select("#selectRegion5").on("change", function(d) {
+                var selectedOption = d3.select(this).property("value")
+                update5(year5, selectedOption)
+            })
+
+            //draw the chart
+            function draw5(c5W, c5H, year5, region5){
+            d3.select("#chart5div").append("div")
+                .html("<h3>Graduates in " + region5 + " in " + year5 +": Male, Female, Gender Unknown"+ "</h3><h4>Try dragging the circles!</h4>")
+
+            var chart5 = d3.select("#chart5div")
+                .append("svg")
+                .attr("width", c5W + margin5.left + margin5.right)
+                .attr("height", c5H + margin5.top + margin5.bottom)
+            
+            d3.csv("chart5/genders_allyears.csv", function(csv) {
+                //all genders
+                data5 = csv.filter(function(row){
+                    return row["REF_DATE"] == year5 && row["GEO"] == region5 && row["Field of study"] != "Total, field of study" && row["Institution type"] == "Total, institution type"
+                })
+                var ind=0;
+                const data5P = data5.map(item => ({index:ind++, gender: item["Gender"], field: item["Field of study"], value: item["VALUE"]}))
+                console.log(data5P);
+
+                var chart5Colour = d3.scaleOrdinal()
+                .domain(["Man", "Woman", "Gender unknown"])
+                .range(['#4421AF','#B7128A','#D48E2C']) //blue red orange
+
+                // circle packing: referenced https://www.d3indepth.com/force-layout/, https://d3-graph-gallery.com/graph/circularpacking_group.html, https://d3-graph-gallery.com/graph/circularpacking_template.html
+                // Size scale for circles
+                var size = d3.scaleLinear()
+                    .domain([0, d3.max(data5P, function(d) { return +d["value"]; })])
+                    .range([2,95])  // range of width in px
+
+                // tooltip: referenced https://d3-graph-gallery.com/graph/circularpacking_template.html
+                // create a tooltip
+                var Tooltip = d3.select("#chart5div")
+                    .append("div")
+                    .style("opacity", 0)
+                    .attr("class", "tooltip")
+
+                //functions for tooltip
+                var mouseover = function(d) {
+                    Tooltip
+                    .style("opacity", 1)
+                }
+                var mousemove = function(d) {
+                    if(d.gender=="Man"){ g = "Male" }
+                    else if(d.gender=="Woman"){g = "Female"}
+                    else {g = d.gender}
+                    
+                    Tooltip
+                    .html("<b>" + d.field + "</b><br>" + d3.format(",")(d.value) + " " + g +" graduates")
+                    // .style("left", (d3.mouse(this)[0]+20) + "px")
+                    // .style("top", (d3.mouse(this)[1]) + "px")
+                }
+                var mouseleave = function(d) {
+                    Tooltip
+                    .style("opacity", 0)
+                }
+
+                // A scale that gives X target position for each group
+                var x = d3.scaleOrdinal()
+                    .domain([1, 2, 3])
+                    .range([(c5W/2)-350, c5W/2, (c5W/2)+250])
+
+                // Initialize the circle: all located at the center of the svg area
+                var node = chart5.append("g")
+                    .attr("transform", "translate(100, 0)") //add some space on left
+                    .selectAll("circle")
+                    .data(data5P)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "node")
+                    .attr("r", function(d){ if(d.value ==0){return 0} else return size(d.value)})
+                    .attr("cx", c5W / 2)
+                    .attr("cy", (c5H / 2)+margin5.top)
+                    .style("fill", function(d){ return chart5Colour(d.gender)})
+                    .style("fill-opacity", 0.75)
+                    .attr("stroke", "white")
+                    .style("stroke-width", 1)
+                    .on("mouseover", mouseover) // What to do when hovered
+                    .on("mousemove", mousemove)
+                    .on("mouseleave", mouseleave)
+                    .call(d3.drag() // call specific function when circle is dragged
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended));
+
+                var simulation = d3.forceSimulation()
+                .force("x", d3.forceX().strength(0.5).x( function(d){ return x(d.gender) } ))
+                .force("y", d3.forceY().strength(0.1).y( c5H/2 ))
+                .force("center", d3.forceCenter().x(c5W / 2).y((c5H / 2)+margin5.top))// Attraction to the center of the svg area
+                .force("charge", d3.forceManyBody().strength(1)) // Nodes are attracted one each other of value is > 0
+                .force("collide", d3.forceCollide().strength(1).radius(function(d){ return (size(d.value)+4)}).iterations(1)) // Force that avoids circle overlapping
+
+                // apply forces to nodes
+                simulation
+                    .nodes(data5P)
+                    .on("tick", function(d){
+                        node
+                            .attr("cx", function(d){ return d.x; })
+                            .attr("cy", function(d){ return d.y; })
+                    });
+
+                //allow dragging interaction
+                function dragstarted(d) {
+                    if (!d3.event.active) simulation.alphaTarget(.03).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                }
+                function dragged(d) {
+                    d.fx = d3.event.x;
+                    d.fy = d3.event.y;
+                }
+                function dragended(d) {
+                    if (!d3.event.active) simulation.alphaTarget(.03);
+                    d.fx = null;
+                    d.fy = null;
+                }
+
+                chart5.attr("transform", "translate(-"+ 100 +", 0), scale(1)")
+            })
+        }
+            
+        /* Chart 6 (bar graph) ------------------------------------------------------------- */
+        var c6W = 1100;
+        var c6H = 500;
+
+        // dropdowns: referenced // dropdowns: referenced https://d3-graph-gallery.com/graph/line_select.html
+        // add the options to the dropdowns
+        d3.select("#selectYear6")
+        .selectAll('myOptions')
+            .data(YEARS)
+        .enter()
+            .append('option')
+        .text(function (d) { return d; }) 
+        .attr("value", function (d) { return d; }) 
+
+        d3.select("#selectRegion6")
+        .selectAll('myOptions')
+            .data(REGIONS)
+        .enter()
+            .append('option')
+        .text(function (d) { return d; }) 
+        .attr("value", function (d) { return d; }) 
+
+        var year6 = 2021;
+        var region6 = "Canada";
+
+        draw6(c6W, c6H, year6, region6);
+
+        //update chart for year and region selected in dropdown
+        function update6(selectedYear, selectedRegion){
+            year6 = selectedYear;
+            region6 = selectedRegion;
+            console.log(year6);
+            console.log(region6);
+
+            d3.select("#chart6div").selectAll("svg").remove();
+            d3.select("#chart6div").selectAll("h3").remove();
+            d3.select("#chart6div").selectAll("h4").remove();
+            d3.select("#chart6div").selectAll(".tooltip").remove();
+            draw6(c6W, c6H, year6, region6);
+        }
+
+        // run update function when a selection is made
+        d3.select("#selectYear6").on("change", function(d) {
+            
+            var selectedOption = d3.select(this).property("value")
+            
+            update6(selectedOption, region6)
+        })
+
+        d3.select("#selectRegion6").on("change", function(d) {
+            
+            var selectedOption = d3.select(this).property("value")
+            
+            update6(year6, selectedOption)
+        })
+
+        //draw the chart
+        function draw6(c6W, c6H, year6, region6){
+            d3.select("#chart6div").append("div")
+                .html("<h3>Graduates in " + region6 + " in " + year6 +": Male, Female, Gender Unknown"+ "</h3>")
+
+            // set the dimensions and margins of the graph
+            var margin6 = {top: 10, right: 30, bottom: 150, left: 200},
+                c6W = c6W - margin6.left - margin6.right,
+                c6H = c6H - margin6.top - margin6.bottom;
+
+            var chart6 = d3.select("#chart6div")
+                .append("svg")
+                    .attr("width", c6W + margin6.left + margin6.right)
+                    .attr("height", c6H + margin6.top + margin6.bottom)
+                    .attr("id", "chart6svg")
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin6.left + "," + margin6.top + ")");
+
+            var data6 = new Map()
+            d3.csv("chart6/genders_allyears.csv", function(csv){
+                data6 = csv.filter(function(row){
+                    return row["REF_DATE"] == year6 && row["GEO"] == region6 && row["Field of study"] != "Total, field of study"
+                })
+                const data6P = data6.map(item => ({field: item["Field of study"], gender: item.Gender, value: item.VALUE}))
+
+                console.log(data6P)
+
+            //get data into correct structure grouped by field
+            var data6G = [];
+            var spot = 0;
+            for(let i=0; i<14; i++){
+                //sometimes the data is missing the "Gender unknown" category so this if statement avoids problems with that
+                if(data6P[spot+2].gender == "Gender unknown"){
+                    var rowM = data6P[spot++];
+                    var rowF = data6P[spot++];
+                    var rowU = data6P[spot++];
+                    console.log(rowM);
+                    console.log(rowF);
+                    console.log(rowU);
+
+                    var field = rowM["field"];
+                    var numM = rowM["value"];
+                    var numF = rowF["value"];
+                    var numU = rowU["value"];
+
+                    var newRow = {field: field, male: numM, female: numF, unknown: numU};
+                    console.log(newRow);
+                    data6G.push(newRow);
+                }
+                else{
+                    var rowM = data6P[spot++];
+                    var rowF = data6P[spot++];
+                    console.log(rowM);
+                    console.log(rowF);
+
+                    var field = rowM["field"];
+                    var numM = rowM["value"];
+                    var numF = rowF["value"];
+                    var numU = 0;
+
+                    var newRow = {field: field, male: numM, female: numF, unknown: numU};
+                    console.log(newRow);
+                    data6G.push(newRow);
+                }
+            }
+            console.log(data6G);
+
+            var subgroups = ["male", "female", "unknown"]
+            var groups = fieldDomain
+
+            var groups = d3.map(data6G, function(d){return(d.field)}).keys();
+
+            console.log(subgroups)
+            console.log(groups)
+
+            chart6 = chart6.append("g")
+
+            // grouped bar graph: referenced https://d3-graph-gallery.com/graph/barplot_grouped_basicWide.html
+            var x = d3.scaleBand()
+                .domain(groups)
+                .range([0, c6W])
+                .padding([0.2])
+            chart6.append("g")
+                .attr("transform", "translate(0," + c6H + ")")
+                .call(d3.axisBottom(x).tickSize(0))
+                .selectAll("text")
+                    .attr("transform", "translate(-10,0)rotate(-30)")
+                    .style("text-anchor", "end");
+
+            console.log(x.bandwidth());
+
+            var y = d3.scaleLinear()
+                .domain([0, d3.max(data6P, function(d) { return +d["value"]; })])
+                .range([ c6H, 0 ]);
+            chart6.append("g")
+                .call(d3.axisLeft(y));
+
+            var xSubgroup = d3.scaleBand()
+                .domain(subgroups)
+                .range([0, x.bandwidth()])
+                .padding([0.05])
+
+            // tooltip: referenced https://d3-graph-gallery.com/graph/circularpacking_template.html
+            // create a tooltip
+            var Tooltip = d3.select("#chart6div")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+
+            // functions for tooltip
+            var mouseover = function(d) {
+                Tooltip
+                .style("opacity", 1)
+            }
+            var mousemove = function(d) {
+                Tooltip
+                .html('<u>' + d.field + '</u>' + "<br>" + d3.format(",")(d.male) + " Male graduates <br>"+ d3.format(",")(d.female) + " Female graduates <br>" + d3.format(",")(d.unknown) + " Gender unknown graduates")
+                .style("left", (d3.mouse(this)[0]+20) + "px")
+                .style("top", (d3.mouse(this)[1]) + "px")
+            }
+            var mouseleave = function(d) {
+                Tooltip
+                .style("opacity", 0)
+            }
+
+            //colours for genders
+            var chart6Colour = d3.scaleOrdinal()
+                .domain(subgroups)
+                .range(['#4421AF','#B7128A','#D48E2C']) //blue red orange
+
+            // Show the bars
+            var bars = chart6.append("g")
+                .selectAll("g")
+                // Enter in data = loop group per group
+                .data(data6G)
+                .enter()
+                .append("g")
+                .on("mouseover", mouseover) // What to do when hovered
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave)
+                .attr("transform", function(d) { return "translate(" + x(d.field) + ",0)"; })
+                .selectAll("rect")
+                .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); })
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return xSubgroup(d.key); })
+                .attr("y", function(d) { return y(d.value); })
+                .attr("width", xSubgroup.bandwidth())
+                .attr("height", function(d) { return c6H - y(d.value); })
+                .attr("fill", function(d) { return chart6Colour(d.key); })
+
+            chart6.selectAll("line").style("stroke", "white");
+            chart6.selectAll("path").style("stroke", "white");
+            chart6.selectAll("text").style("fill", "white");
+
+            d3.select("#chart6svg")
+                .attr("transform", "translate(-"+ (margin6.left) +", 50), scale(1.2)")
+                .attr("style", "margin-bottom: 100px")
+            })
+        }
+
+        /* Chart 7 (line chart) ------------------------------------------------------------- */
+        var c7W = 1100
+        var c7H = 600
+        var margin7 = {top: 10, right: 30, bottom: 30, left: 60},
+            c7W = c7W - margin7.left - margin7.right,
+            c7H = c7H - margin7.top - margin7.bottom;
+        
+        // would use this if the chart with all worked
+        const FIELDS7 = ["All fields", "Total, field of study", "Personal improvement and leisure [0]", "Education [1]", "Visual and performing arts, and communications technologies [2]", "Humanities [3]", "Social and behavioural sciences and law [4]",
+                                    "Business, management and public administration [5]", "Physical and life sciences and technologies [6]", "Mathematics, computer and information sciences [7]",
+                                    "Architecture, engineering and related technologies [8]", "Agriculture, natural resources and conservation [9]", "Health and related fields [10]", "Personal, protective and transportation services [11]",
+                                    "Other  [12]", "Unclassified"];
+
+        // dropdowns: referenced https://d3-graph-gallery.com/graph/line_select.html
+        // add the options to the dropdowns
+        d3.select("#selectField7")
+        .selectAll('myOptions')
+            .data(FIELDS)
+        .enter()
+            .append('option')
+        .text(function (d) { return d; }) 
+        .attr("value", function (d) { return d; }) 
+
+        d3.select("#selectRegion7")
+        .selectAll('myOptions')
+            .data(REGIONS)
+        .enter()
+            .append('option')
+        .text(function (d) { return d; }) 
+        .attr("value", function (d) { return d; }) 
+
+        //default selections
+        var field7 = "Total, field of study";
+        var region7 = "Canada";
+
+        draw7(c7W, c7H, field7, region7);
+
+        //update chart for year and region selected in dropdown
+        function update7(selectedField, selectedRegion){
+            field7 = selectedField;
+            region7 = selectedRegion;
+            console.log(field7);
+            console.log(region7);
+
+            d3.select("#chart7div").selectAll("svg").remove();
+            d3.select("#chart7div").selectAll("h3").remove();
+            d3.select("#chart7div").selectAll("h4").remove();
+            if(field7 == "All fields"){
+                draw7All(c7W, c7H, region7);
+            }
+            else{
+                draw7(c7W, c7H, field7, region7);
+            }
+        }
+
+        // run update function when a selection is made
+        d3.select("#selectField7").on("change", function(d) {
+            
+            var selectedOption = d3.select(this).property("value")
+            
+            update7(selectedOption, region7)
+        })
+
+        d3.select("#selectRegion7").on("change", function(d) {
+            
+            var selectedOption = d3.select(this).property("value")
+            
+            update7(field7, selectedOption)
+        })
+
+        //draw the chart
+        function draw7(c7W, c7H, field7, region7){
+            d3.select("#chart7div").append("div")
+                .html("<h3>" + field7 + " graduates in " + region7 + "</h3>")
+
+            var chart7 = d3.select("#chart7div")
+                .append("svg")
+                    .attr("width", c7W + margin7.left + margin7.right)
+                    .attr("height", c7H + margin7.top + margin7.bottom)
+                    .attr("id", "chart7svg")
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin7.left + "," + margin7.top + ")");
+
+            var chart7Colour = d3.scaleOrdinal()
+            .domain(FIELDS)
+            .range(COLOURS)
+            
+            d3.csv("chart7/1992to2021data.csv", function(csv){
+                console.log(csv)
+                data7 = csv.filter(function(row){
+                    return row["GEO"] == region7 && row["Field of study"] == field7
+                })
+
+                // line chart: referenced https://d3-graph-gallery.com/line.html
+                //draw x axis
+                var x = d3.scaleLinear()
+                    .domain([1992, 2021])
+                    .range([0, c7W])
+                
+                //draw y axis
+                var y = d3.scaleLinear()
+                    .domain([0, d3.max(data7, function(d) { return +d.VALUE; })])
+                    .range([c7H, 0])
+
+                const xAxisGrid = d3.axisBottom(x).tickSize(-c7H).tickFormat('').ticks(10);
+                const yAxisGrid = d3.axisLeft(y).tickSize(-c7W).tickFormat('').ticks(10);
+
+                // gridlines: referenced https://www.essycode.com/posts/adding-gridlines-chart-d3/
+                //create gridlines
+                chart7.append('g')
+                .attr('class', 'x axis-grid')
+                .attr('transform', 'translate(0,' + c7H + ')')
+                .call(xAxisGrid)
+                chart7.append('g')
+                .attr('class', 'y axis-grid')
+                .call(yAxisGrid)
+                //and axes
+                chart7.append("g")
+                    .attr("transform", "translate(0," + c7H + ")")
+                    .call(d3.axisBottom(x)
+                    .ticks(29)
+                    .tickFormat(d3.format("d")))
+                chart7.append("g")
+                    .call(d3.axisLeft(y))
+
+                chart7.selectAll("line").style("stroke", "white")
+                chart7.selectAll("path").style("stroke", "white")
+                chart7.selectAll("text").style("fill", "white")
+
+                chart7.append("path")
+                .datum(data7)
+                .attr("fill", "none")
+                .attr("stroke", function(d){return chart7Colour(field7)})
+                .attr("stroke-width", 2)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(d.REF_DATE) })
+                    .y(function(d) { return y(d.VALUE) })
+                    )
+
+                d3.select("#chart7svg")
+                .attr("transform", "translate(-150, 0)")
+            })
+        }
+        
+        //chart with all fields in one (unused not working): referenced https://d3-graph-gallery.com/graph/line_several_group.html
+        function draw7All(c7W, c7H, region7){
+            d3.select("#chart7div").append("div")
+                .html("<h3>" + field7 + " graduates in " + region7 + "</h3>")
+
+            var chart7 = d3.select("#chart7div")
+                .append("svg")
+                    .attr("width", c7W + margin7.left + margin7.right)
+                    .attr("height", c7H + margin7.top + margin7.bottom)
+                    .attr("id", "chart7svg")
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin7.left + "," + margin7.top + ")");
+
+            var chart7Colour = d3.scaleOrdinal()
+            .domain(FIELDS)
+            .range(COLOURS)
+
+            d3.csv("chart7/1992to2021data.csv", function(csv){
+            data7 = csv.filter(function(row){
+                    return row["GEO"] == region7
+                })
+            
+            // group the data: I want to draw one line per group
+            var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
+                .key(function(d) { return d["Field of study"];})
+                .entries(data7);
+
+            //draw x axis
+            var x = d3.scaleLinear()
+            .domain([1992, 2021])
+            .range([0, c7W])
+
+            //draw y axis
+            var y = d3.scaleLinear()
+                    .domain([0, d3.max(data7, function(d) { return +d.VALUE; })])
+                    .range([c7H, 0])
+
+            const xAxisGrid = d3.axisBottom(x).tickSize(-c7H).tickFormat('').ticks(10);
+            const yAxisGrid = d3.axisLeft(y).tickSize(-c7W).tickFormat('').ticks(10);
+
+            //create gridlines
+            chart7.append('g')
+            .attr('class', 'x axis-grid')
+            .attr('transform', 'translate(0,' + c7H + ')')
+            .call(xAxisGrid)
+            chart7.append('g')
+            .attr('class', 'y axis-grid')
+            .call(yAxisGrid)
+            //and axes
+            chart7.append("g")
+                .attr("transform", "translate(0," + c7H + ")")
+                .call(d3.axisBottom(x)
+                .ticks(29)
+                .tickFormat(d3.format("d")))
+            chart7.append("g")
+                .call(d3.axisLeft(y))
+
+
+            // Draw the line
+            chart7.selectAll(".line")
+                .data(sumstat)
+                .enter()
+                .append("path")
+                    .attr("fill", "none")
+                    .attr("stroke", function(d){return chart7Colour(d["Field of study"])})
+                    .attr("stroke-width", 1.5)
+                    .attr("d", function(d){
+                    return d3.line()
+                        .x(function(d) { return x(d.year); })
+                        .y(function(d) { return y(+d.VALUE); })
+                        (d.values)
+                    })
+            })
+            }
+
+            </script>
+        </div>
+        <footer><a href="#header">Top</a><p>This webpage was created by Haileigh Barss for CSCI4166 at Dalhousie University using D3.js and data retrieved from Statistics Canada.</p></footer>
+    </body>
+</html>
